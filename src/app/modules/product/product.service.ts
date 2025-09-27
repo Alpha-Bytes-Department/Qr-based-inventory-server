@@ -14,13 +14,21 @@ const createProduct = async (product: IProduct): Promise<IProduct> => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Category not found');
   }
 
+  if (product.qrId) {
+    const isExistQr = await Product.findOne({ qrId: product.qrId });
+    if (isExistQr) {
+      unlinkFile(product.image);
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'QR code already exists');
+    }
+  }
+
   const newProduct = await Product.create(product);
 
-  await sendNotifications({
-    text: `New Arrivals - ${newProduct.name}`,
-    type: 'USER',
-    product: newProduct._id,
-  });
+  // await sendNotifications({
+  //   text: `New Arrivals - ${newProduct.name}`,
+  //   type: 'USER',
+  //   product: newProduct._id,
+  // });
 
   return newProduct;
 };

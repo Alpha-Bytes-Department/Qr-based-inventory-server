@@ -9,6 +9,7 @@ const createProductZodSchema = z.object({
     .regex(/^[0-9a-fA-F]{24}$/, { message: 'Invalid ObjectId' }),
   rating: z.string().optional(),
   size: z.string().optional(),
+  qrId: z.string().nonempty('qrId is required'),
 });
 
 // Partial for updates (all fields optional)
@@ -21,6 +22,7 @@ const updateProductSchema = z.object({
     .optional(),
   rating: z.string().optional(),
   size: z.string().optional(),
+  qrId: z.string().min(1).optional(),
 });
 
 export const ProductValidation = {

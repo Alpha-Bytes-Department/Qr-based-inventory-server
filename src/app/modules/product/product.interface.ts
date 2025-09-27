@@ -9,4 +9,5 @@ export type IProduct = {
   count?: number;
   size?: string;
   status: 'active' | 'deleted';
+  qrId: string;
 };

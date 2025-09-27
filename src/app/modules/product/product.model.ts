@@ -37,6 +37,10 @@ const productSchema = new Schema<IProduct>(
       type: Number,
       required: false,
     },
+    qrId: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
