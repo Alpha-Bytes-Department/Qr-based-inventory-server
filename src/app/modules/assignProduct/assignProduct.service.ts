@@ -84,4 +84,86 @@ const getAllAssignProduct = async (query: Record<string, unknown>) => {
   };
 };
 
-export const AssignProductService = { assignProduct, getAllAssignProduct };
+// service
+const getAllAssignProductByCategory = async (
+  categoryId: string,
+  query: Record<string, unknown>
+) => {
+  const { searchTerm, page = '1', limit = '10', ...filters } = query;
+
+  const conditions: any[] = [];
+
+  // ✅ Find productIds by category
+  const productIdsByCategory = await Product.find({
+    category: categoryId,
+  }).distinct('_id');
+
+  if (!productIdsByCategory.length) {
+    return {
+      assignProduct: [],
+      meta: { page, limit, total: 0 },
+    };
+  }
+
+  conditions.push({ productId: { $in: productIdsByCategory } });
+
+  // ✅ Search by product name
+  if (searchTerm) {
+    const productIds = await Product.find({
+      name: { $regex: searchTerm, $options: 'i' },
+      category: categoryId,
+    }).distinct('_id');
+
+    if (productIds.length) {
+      conditions.push({ productId: { $in: productIds } });
+    }
+  }
+
+  // ✅ Extra filters (like userId, status etc.)
+  if (Object.keys(filters).length) {
+    conditions.push({
+      $and: Object.entries(filters).map(([key, value]) => ({ [key]: value })),
+    });
+  }
+
+  const where = conditions.length ? { $and: conditions } : {};
+
+  // ✅ Pagination
+  const pageNumber = parseInt(page as string, 10);
+  const pageSize = parseInt(limit as string, 10);
+  const skip = (pageNumber - 1) * pageSize;
+
+  // ✅ Query AssignProduct with populated fields
+  const [assignProduct, total] = await Promise.all([
+    AssignProduct.find(where)
+      .populate({
+        path: 'productId',
+        model: 'Product',
+        select: 'name image size price category',
+      })
+      .populate({
+        path: 'userId',
+        model: 'User',
+        select: 'name email',
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(pageSize),
+    AssignProduct.countDocuments(where),
+  ]);
+
+  return {
+    assignProduct,
+    meta: {
+      page: pageNumber,
+      limit: pageSize,
+      total,
+    },
+  };
+};
+
+export const AssignProductService = {
+  assignProduct,
+  getAllAssignProduct,
+  getAllAssignProductByCategory,
+};

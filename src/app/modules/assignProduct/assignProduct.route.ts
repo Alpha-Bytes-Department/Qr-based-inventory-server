@@ -17,4 +17,10 @@ router.get(
   AssignProductController.getAllAssignProduct
 );
 
+router.get(
+  '/get-all-assign-product-by-category/:id',
+  auth(USER_ROLES.ADMIN, USER_ROLES.USER),
+  AssignProductController.getAllAssignProductByCategory
+);
+
 export const AssignProductRoutes = router;
