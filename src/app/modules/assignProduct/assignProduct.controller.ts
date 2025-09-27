@@ -13,4 +13,19 @@ const assignProduct = catchAsync(async (req, res) => {
   });
 });
 
-export const AssignProductController = { assignProduct };
+const getAllAssignProduct = catchAsync(async (req, res) => {
+  const value = {
+    ...req.query,
+    userId: req.user.id,
+  };
+
+  const result = await AssignProductService.getAllAssignProduct(value);
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'Product retrieved successfully',
+    data: result,
+  });
+});
+
+export const AssignProductController = { assignProduct, getAllAssignProduct };

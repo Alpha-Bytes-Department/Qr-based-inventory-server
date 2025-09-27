@@ -10,6 +10,7 @@ import { ReviewRoutes } from '../app/modules/review/review.route';
 import { OrderRoutes } from '../app/modules/order/order.route';
 import { SettingRoutes } from '../app/modules/setting/setting.route';
 import { DashboardRoutes } from '../app/modules/dashboard/dashboard.route';
+import { AssignProductRoutes } from '../app/modules/assignProduct/assignProduct.route';
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ const apiRoutes = [
   { path: '/order', route: OrderRoutes },
   { path: '/setting', route: SettingRoutes },
   { path: '/dashboard', route: DashboardRoutes },
+  { path: '/assign-product', route: AssignProductRoutes },
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));
