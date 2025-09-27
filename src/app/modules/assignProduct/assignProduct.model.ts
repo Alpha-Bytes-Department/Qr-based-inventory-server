@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { model, Schema } from 'mongoose';
 import { IAssignProduct } from './assignProduct.interface';
 
 const assignProductSchema = new Schema<IAssignProduct>(
@@ -15,4 +15,7 @@ const assignProductSchema = new Schema<IAssignProduct>(
   { timestamps: true }
 );
 
-export const AssignProduct = assignProductSchema;
+export const AssignProduct = model<IAssignProduct>(
+  'AssignProduct',
+  assignProductSchema
+);
