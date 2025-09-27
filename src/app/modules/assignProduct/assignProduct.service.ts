@@ -4,6 +4,7 @@ import { IAssignProduct } from './assignProduct.interface';
 import { AssignProduct } from './assignProduct.model';
 import { User } from '../user/user.model';
 import { Product } from '../product/product.model';
+import { Category } from '../category/category.model';
 
 const assignProduct = async (data: IAssignProduct) => {
   const [user, product, existingAssignment] = await Promise.all([
@@ -26,14 +27,15 @@ const assignProduct = async (data: IAssignProduct) => {
 };
 
 const getAllAssignProduct = async (query: Record<string, unknown>) => {
-  const { searchTerm, name, page = '1', limit = '10', ...filters } = query;
+  const { search, searchTerm, page = '1', limit = '10', ...filters } = query;
 
   const conditions: any[] = [];
 
-  // Search by category name
+  // ✅ Search by product name (only non-deleted products)
   if (searchTerm) {
     const productIds = await Product.find({
       name: { $regex: searchTerm, $options: 'i' },
+      status: { $ne: 'deleted' },
     }).distinct('_id');
 
     if (productIds.length) {
@@ -41,7 +43,28 @@ const getAllAssignProduct = async (query: Record<string, unknown>) => {
     }
   }
 
-  // Additional filters
+  if (search) {
+    // 🔎 Step 1: Find categories that match the search term
+    const categoryIds = await Category.find({
+      name: { $regex: search, $options: 'i' },
+    }).distinct('_id');
+
+    // 🔎 Step 2: Find products that either match by name or belong to those categories
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: search, $options: 'i' } },
+        { category: { $in: categoryIds } },
+      ],
+      status: { $ne: 'deleted' },
+    }).distinct('_id');
+
+    // 🔎 Step 3: Push productIds to conditions
+    if (products.length) {
+      conditions.push({ productId: { $in: products } });
+    }
+  }
+
+  // ✅ Additional filters (like userId, status, etc.)
   if (Object.keys(filters).length) {
     conditions.push({
       $and: Object.entries(filters).map(([key, value]) => ({ [key]: value })),
@@ -50,23 +73,24 @@ const getAllAssignProduct = async (query: Record<string, unknown>) => {
 
   const where = conditions.length ? { $and: conditions } : {};
 
-  // Pagination
+  // ✅ Pagination
   const pageNumber = parseInt(page as string, 10);
   const pageSize = parseInt(limit as string, 10);
   const skip = (pageNumber - 1) * pageSize;
 
-  // Fetch products with category populated
+  // ✅ Query AssignProduct with populated product (excluding deleted)
   const [assignProduct, total] = await Promise.all([
     AssignProduct.find(where)
       .populate({
         path: 'productId',
         model: 'Product',
-        select: 'name image size price',
+        match: { status: { $ne: 'deleted' } }, // ⬅️ filter out deleted products
+        select: 'name image size price status',
       })
       .populate({
         path: 'userId',
         model: 'User',
-        select: 'name email',
+        select: 'name email image',
       })
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -74,11 +98,16 @@ const getAllAssignProduct = async (query: Record<string, unknown>) => {
     AssignProduct.countDocuments(where),
   ]);
 
+  // ✅ Remove assignProducts where productId got filtered out
+  const filteredAssignProduct = assignProduct.filter(
+    item => item.productId !== null
+  );
+
   return {
-    assignProduct,
+    assignProduct: filteredAssignProduct,
     meta: {
-      page,
-      limit,
+      page: pageNumber,
+      limit: pageSize,
       total,
     },
   };
@@ -96,6 +125,7 @@ const getAllAssignProductByCategory = async (
   // ✅ Find productIds by category
   const productIdsByCategory = await Product.find({
     category: categoryId,
+    status: { $ne: 'deleted' },
   }).distinct('_id');
 
   if (!productIdsByCategory.length) {
