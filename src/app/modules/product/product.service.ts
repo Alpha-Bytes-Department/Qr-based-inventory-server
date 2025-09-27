@@ -38,8 +38,16 @@ const updateProduct = async (id: string, data: IProduct) => {
   if (!isExistProduct) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Product not found');
   }
+
   if (data.image && isExistProduct.image) {
     unlinkFile(isExistProduct.image);
+  }
+
+  if (data.qrId) {
+    const isExistQr = await Product.findOne({ qrId: data.qrId });
+    if (isExistQr) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'QR code already exists');
+    }
   }
 
   const result = await Product.findByIdAndUpdate(id, data, {
