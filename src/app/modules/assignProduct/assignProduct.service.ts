@@ -27,14 +27,23 @@ const assignProduct = async (data: IAssignProduct) => {
 };
 
 const getAllAssignProduct = async (query: Record<string, unknown>) => {
-  const { search, searchTerm, page = '1', limit = '10', ...filters } = query;
+  const {
+    categoryName,
+    searchTerm,
+    page = '1',
+    limit = '10',
+    ...filters
+  } = query;
 
   const conditions: any[] = [];
 
   // ✅ Search by product name (only non-deleted products)
   if (searchTerm) {
     const productIds = await Product.find({
-      name: { $regex: searchTerm, $options: 'i' },
+      $or: [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { price: { $regex: searchTerm, $options: 'i' } },
+      ],
       status: { $ne: 'deleted' },
     }).distinct('_id');
 
@@ -43,16 +52,17 @@ const getAllAssignProduct = async (query: Record<string, unknown>) => {
     }
   }
 
-  if (search) {
+  if (categoryName) {
     // 🔎 Step 1: Find categories that match the search term
     const categoryIds = await Category.find({
-      name: { $regex: search, $options: 'i' },
+      name: { $regex: categoryName, $options: 'i' },
     }).distinct('_id');
 
     // 🔎 Step 2: Find products that either match by name or belong to those categories
     const products = await Product.find({
       $or: [
-        { name: { $regex: search, $options: 'i' } },
+        { name: { $regex: categoryName, $options: 'i' } },
+        { price: { $regex: categoryName, $options: 'i' } },
         { category: { $in: categoryIds } },
       ],
       status: { $ne: 'deleted' },
@@ -140,7 +150,10 @@ const getAllAssignProductByCategory = async (
   // ✅ Search by product name
   if (searchTerm) {
     const productIds = await Product.find({
-      name: { $regex: searchTerm, $options: 'i' },
+      $or: [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { price: { $regex: searchTerm, $options: 'i' } },
+      ],
       category: categoryId,
     }).distinct('_id');
 
