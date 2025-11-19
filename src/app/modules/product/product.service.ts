@@ -5,7 +5,6 @@ import { IProduct } from './product.interface';
 import { Product } from './product.model';
 import unlinkFile from '../../../shared/unlinkFile';
 import { Review } from '../review/review.model';
-import { sendNotifications } from '../../../helpers/notificationHelper';
 
 const createProduct = async (product: IProduct): Promise<IProduct> => {
   const isExistCategory = await Category.findById(product.category);

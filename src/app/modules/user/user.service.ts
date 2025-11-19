@@ -75,6 +75,10 @@ const getAllUsers = async (query: Record<string, unknown>) => {
 
   anyConditions.push({ role: USER_ROLES.USER });
 
+  if (searchTerm) {
+    anyConditions.push({ name: { $regex: searchTerm, $options: 'i' } });
+  }
+
   if (Object.keys(filterData).length > 0) {
     const filterConditions = Object.entries(filterData).map(
       ([field, value]) => ({ [field]: value })
