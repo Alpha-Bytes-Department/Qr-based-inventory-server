@@ -39,6 +39,40 @@ const createReviewToDB = async (payload: Partial<IReview>) => {
   return result;
 };
 
+const getAllReview = async (
+  query: Record<string, unknown>,
+  productId: string
+) => {
+  const { page, limit } = query;
+
+  // Apply filter conditions
+
+  const pages = parseInt(page as string) || 1;
+  const size = parseInt(limit as string) || 10;
+  const skip = (pages - 1) * size;
+
+  // Set default sort order to show new data first
+
+  const result = await Review.find({ product: productId })
+
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(size)
+    .lean();
+  const total = await Review.countDocuments({ product: productId });
+
+  const data: any = {
+    result,
+    meta: {
+      page: pages,
+      limit: size,
+      total,
+    },
+  };
+  return data;
+};
+
 export const ReviewService = {
   createReviewToDB,
+  getAllReview,
 };

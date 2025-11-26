@@ -11,4 +11,10 @@ router.post(
   ReviewController.createReviewToDB
 );
 
+router.get(
+  '/get-all-review/:id',
+  auth(USER_ROLES.USER, USER_ROLES.ADMIN),
+  ReviewController.getAllReview
+);
+
 export const ReviewRoutes = router;
