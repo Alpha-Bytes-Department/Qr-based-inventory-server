@@ -95,7 +95,7 @@ const getAllAssignProduct = async (query: Record<string, unknown>) => {
         path: 'productId',
         model: 'Product',
         match: { status: { $ne: 'deleted' } }, // ⬅️ filter out deleted products
-        select: 'name image size price status',
+        select: 'name image size price status qrId count rating',
       })
       .populate({
         path: 'userId',
@@ -182,7 +182,7 @@ const getAllAssignProductByCategory = async (
       .populate({
         path: 'productId',
         model: 'Product',
-        select: 'name image size price category',
+        select: 'name image size price category qrId count rating',
       })
       .populate({
         path: 'userId',
