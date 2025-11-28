@@ -123,7 +123,6 @@ const getAllAssignProduct = async (query: Record<string, unknown>) => {
   };
 };
 
-// service
 const getAllAssignProductByCategory = async (
   categoryId: string,
   query: Record<string, unknown>
@@ -205,8 +204,75 @@ const getAllAssignProductByCategory = async (
   };
 };
 
+const getAllDataFromDb = async (query: Record<string, unknown>) => {
+  const { searchTerm, page = '1', limit = '10', ...filters } = query;
+
+  const conditions: any[] = [];
+
+  if (searchTerm) {
+    conditions.push({
+      $or: [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { price: { $regex: searchTerm, $options: 'i' } },
+      ],
+    });
+  }
+
+  if (Object.keys(filters).length) {
+    conditions.push({
+      $and: Object.entries(filters).map(([key, value]) => ({ [key]: value })),
+    });
+  }
+
+  const where = conditions.length ? { $and: conditions } : {};
+
+  // Pagination
+  const pageNumber = parseInt(page as string, 10);
+  const pageSize = parseInt(limit as string, 10);
+  const skip = (pageNumber - 1) * pageSize;
+
+  // Query AssignProduct with populated fields
+  const [assignProduct, total] = await Promise.all([
+    AssignProduct.find(where)
+      .populate({
+        path: 'productId',
+        model: 'Product',
+        select: 'name image size price category qrId count rating',
+      })
+      .populate({
+        path: 'userId',
+        model: 'User',
+        select: 'name email',
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(pageSize),
+    AssignProduct.countDocuments(where),
+  ]);
+
+  return {
+    assignProduct,
+    meta: {
+      page: pageNumber,
+      limit: pageSize,
+      total,
+    },
+  };
+};
+
+const deleteAssignData = async (id: string) => {
+  const isExist = await AssignProduct.findById(id);
+  if (!isExist) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'AssignProduct not found');
+  }
+
+  return AssignProduct.findByIdAndDelete(id);
+};
+
 export const AssignProductService = {
   assignProduct,
   getAllAssignProduct,
   getAllAssignProductByCategory,
+  getAllDataFromDb,
+  deleteAssignData,
 };

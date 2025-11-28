@@ -41,6 +41,10 @@ const productSchema = new Schema<IProduct>(
       type: String,
       required: true,
     },
+    des: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

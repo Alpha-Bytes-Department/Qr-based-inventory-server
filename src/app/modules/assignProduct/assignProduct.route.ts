@@ -23,4 +23,16 @@ router.get(
   AssignProductController.getAllAssignProductByCategory
 );
 
+router.get(
+  '/get-all-data',
+  auth(USER_ROLES.ADMIN),
+  AssignProductController.getAllDataFromDb
+);
+
+router.delete(
+  '/delete-assign-product/:id',
+  auth(USER_ROLES.ADMIN),
+  AssignProductController.deleteAssignData
+);
+
 export const AssignProductRoutes = router;

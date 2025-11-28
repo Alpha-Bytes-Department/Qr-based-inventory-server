@@ -10,6 +10,7 @@ const createProductZodSchema = z.object({
   rating: z.string().optional(),
   size: z.string().optional(),
   qrId: z.string().nonempty('qrId is required'),
+  des: z.string().nonempty('Description is required'),
 });
 
 // Partial for updates (all fields optional)
@@ -23,6 +24,7 @@ const updateProductSchema = z.object({
   rating: z.string().optional(),
   size: z.string().optional(),
   qrId: z.string().min(1).optional(),
+  des: z.string().min(1).optional(),
 });
 
 export const ProductValidation = {

@@ -10,4 +10,5 @@ export type IProduct = {
   size?: string;
   status: 'active' | 'deleted';
   qrId: string;
+  des: string;
 };

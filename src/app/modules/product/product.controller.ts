@@ -31,7 +31,7 @@ const updateProduct = catchAsync(async (req, res) => {
   const result = await ProductService.updateProduct(req.params.id, value);
 
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
     message: 'Product updated successfully',
     data: result,
@@ -42,7 +42,7 @@ const getAllProducts = catchAsync(async (req, res) => {
   const result = await ProductService.getAllProducts(req.query);
 
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
     message: 'Product retrieved successfully',
     data: result,
@@ -53,7 +53,7 @@ const productDetails = catchAsync(async (req, res) => {
   const result = await ProductService.productDetails(req.params.id);
 
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
     message: 'Product retrieved successfully',
     data: result,
@@ -64,7 +64,7 @@ const deleteProduct = catchAsync(async (req, res) => {
   const result = await ProductService.deleteProduct(req.params.id);
 
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
     message: 'Product deleted successfully',
     data: result,
@@ -75,7 +75,7 @@ const getAllProductAdmin = catchAsync(async (req, res) => {
   const result = await ProductService.getAllProductAdmin(req.query);
 
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
     message: 'Product retrieved successfully',
     data: result,

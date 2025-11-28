@@ -1,7 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../errors/ApiError';
 import { Review } from './review.model';
-
 import { Product } from '../product/product.model';
 import { IReview } from './review.interface';
 
@@ -54,7 +53,10 @@ const getAllReview = async (
   // Set default sort order to show new data first
 
   const result = await Review.find({ product: productId })
-
+    .populate({
+      path: 'user',
+      select: 'name email image',
+    })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(size)

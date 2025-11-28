@@ -21,7 +21,7 @@ const getAllAssignProduct = catchAsync(async (req, res) => {
 
   const result = await AssignProductService.getAllAssignProduct(value);
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
     message: 'Product retrieved successfully',
     data: result,
@@ -39,9 +39,29 @@ const getAllAssignProductByCategory = catchAsync(async (req, res) => {
     value
   );
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
     message: 'Product retrieved successfully',
+    data: result,
+  });
+});
+
+const getAllDataFromDb = catchAsync(async (req, res) => {
+  const result = await AssignProductService.getAllDataFromDb(req.query);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Product retrieved successfully',
+    data: result,
+  });
+});
+
+const deleteAssignData = catchAsync(async (req, res) => {
+  const result = await AssignProductService.deleteAssignData(req.params.id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Product deleted successfully',
     data: result,
   });
 });
@@ -50,4 +70,6 @@ export const AssignProductController = {
   assignProduct,
   getAllAssignProduct,
   getAllAssignProductByCategory,
+  getAllDataFromDb,
+  deleteAssignData,
 };
